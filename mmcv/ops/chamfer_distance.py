@@ -16,7 +16,8 @@ class ChamferDistanceFunction(Function):
     """This is an implementation of the 2D Chamfer Distance.
 
     It has been used in the paper `Oriented RepPoints for Aerial Object
-    Detection (CVPR 2022) <https://arxiv.org/abs/2105.11111>_`.
+    Detection (CVPR 2022)
+    <https://arxiv.org/abs/2105.11111>_`.
     """
 
     @staticmethod
@@ -44,8 +45,8 @@ class ChamferDistanceFunction(Function):
         xyz1 = xyz1.contiguous()
         xyz2 = xyz2.contiguous()
 
-        dist1 = torch.zeros(batch_size, n).to(device)
-        dist2 = torch.zeros(batch_size, m).to(device)
+        dist1 = torch.zeros(batch_size, n).type(xyz1.dtype).to(device)
+        dist2 = torch.zeros(batch_size, m).type(xyz2.dtype).to(device)
         idx1 = torch.zeros(batch_size, n).type(torch.IntTensor).to(device)
         idx2 = torch.zeros(batch_size, m).type(torch.IntTensor).to(device)
 
@@ -81,8 +82,8 @@ class ChamferDistanceFunction(Function):
         device = grad_dist1.device
         grad_dist1 = grad_dist1.contiguous()
         grad_dist2 = grad_dist2.contiguous()
-        grad_xyz1 = torch.zeros(xyz1.size()).to(device)
-        grad_xyz2 = torch.zeros(xyz2.size()).to(device)
+        grad_xyz1 = torch.zeros(xyz1.size()).type(xyz1.dtype).to(device)
+        grad_xyz2 = torch.zeros(xyz2.size()).type(xyz2.dtype).to(device)
 
         ext_module.chamfer_distance_backward(xyz1, xyz2, idx1, idx2,
                                              grad_dist1, grad_dist2, grad_xyz1,

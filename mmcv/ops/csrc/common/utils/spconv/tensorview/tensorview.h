@@ -27,7 +27,7 @@
 
 namespace tv {
 
-#if defined(__NVCC__) || defined(__HIP__)
+#if defined(__NVCC__) || defined(__HIP__) || defined(__MUSA__)
 #define TV_HOST_DEVICE_INLINE __forceinline__ __device__ __host__
 #define TV_DEVICE_INLINE __forceinline__ __device__
 #define TV_HOST_DEVICE __device__ __host__
@@ -101,6 +101,17 @@ void sstream_print(SStream &ss, T val, TArgs... args) {
     }                                                          \
   }
 
+#define TV_CHECK_MUSA_ERR()                                    \
+  {                                                            \
+    auto err = musaGetLastError();                             \
+    if (err != musaSuccess) {                                  \
+      std::stringstream __macro_s;                             \
+      __macro_s << __FILE__ << " " << __LINE__ << "\n";        \
+      __macro_s << "musa execution failed with error " << err; \
+      throw std::runtime_error(__macro_s.str());               \
+    }                                                          \
+  }
+
 struct CPU {};
 
 #define TV_MAX_DIM 6
@@ -108,7 +119,7 @@ struct CPU {};
 template <typename scalar_t, size_t MaxDim = TV_MAX_DIM>
 struct SimpleVector {
  public:
-  TV_HOST_DEVICE_INLINE SimpleVector(){};
+  TV_HOST_DEVICE_INLINE SimpleVector() {};
   TV_HOST_DEVICE_INLINE SimpleVector(std::initializer_list<scalar_t> q) {
     TV_ASSERT(q.size() <= MaxDim);
     mSize = 0;
@@ -315,7 +326,7 @@ struct Slice {
 
 template <size_t MaxDim = TV_MAX_DIM>
 struct ShapeBase : public SimpleVector<int, MaxDim> {
-  TV_HOST_DEVICE_INLINE ShapeBase() : SimpleVector<int, MaxDim>(){};
+  TV_HOST_DEVICE_INLINE ShapeBase() : SimpleVector<int, MaxDim>() {};
   TV_HOST_DEVICE_INLINE ShapeBase(std::initializer_list<int> shape)
       : SimpleVector<int, MaxDim>(shape) {}
 

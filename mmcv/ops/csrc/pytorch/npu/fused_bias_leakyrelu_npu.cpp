@@ -1,3 +1,4 @@
+#include "common_util.h"
 #include "pytorch_npu_helper.hpp"
 
 using namespace NPU_NAME_SPACE;
@@ -15,8 +16,10 @@ Tensor fused_bias_leakyrelu_npu(const Tensor &input, const Tensor &bias,
   if (grad == 0) {
     auto input_size = input.sizes();
     int input_length = input_size.size();
-    c10::SmallVector<int64_t, SIZE> input_size_tmp;
-    input_size_tmp = array_to_small_vector(input_size);
+    c10::SmallVector<int64_t, 8> input_size_tmp;
+    for (uint64_t i = 0; i < input_size.size(); i++) {
+      input_size_tmp.emplace_back(input_size[i]);
+    }
     if (input_length > 1) {
       for (int i = 0; i < input_length; i++) {
         if (i != 1) {
